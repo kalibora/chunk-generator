@@ -1,0 +1,19 @@
+<?php
+
+$finder = \PhpCsFixer\Finder::create()
+    ->exclude('vendor')
+    ->in(__DIR__)
+;
+
+return \PhpCsFixer\Config::create()
+    ->setRules([
+        '@Symfony' => true,
+        'concat_space' => false,
+        'phpdoc_summary' => false,
+        'yoda_style' => false,
+        'return_type_declaration' => ['space_before' => 'one'],
+        'increment_style' => ['style' => 'post'],
+    ])
+    ->setFinder($finder)
+    ->setUsingCache(false)
+;

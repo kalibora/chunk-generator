@@ -1,0 +1,46 @@
+{
+    "name": "kalibora/chunk-generator",
+    "description": "Chunk generator (For keep memory usage low)",
+    "keywords": ["chunk", "generator", "memory"],
+    "license": "MIT",
+    "authors": [
+        {
+
+            "name": "Toshiyuki Fujita",
+            "email": "kalibora@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Kalibora\\ChunkGenerator\\": "src"}
+    },
+    "autoload-dev": {
+        "psr-4": {"Kalibora\\ChunkGenerator\\": "tests"}
+    },
+    "scripts": {
+        "qa": [
+            "@test",
+            "@analyse",
+            "@cs"
+        ],
+        "test" : [
+            "phpunit"
+        ],
+        "analyse" : [
+            "phpstan analyse -l max --no-progress src"
+        ],
+        "analyze" : [
+            "@analyse"
+        ],
+        "cs": [
+            "php-cs-fixer fix -v --dry-run --diff"
+        ]
+    },
+    "require": {
+        "php": ">=7.1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.2",
+        "phpstan/phpstan": "^0.10.1",
+        "friendsofphp/php-cs-fixer": "^2.12"
+    }
+}
