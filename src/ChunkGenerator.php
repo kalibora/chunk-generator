@@ -4,68 +4,18 @@ namespace Kalibora\ChunkGenerator;
 
 class ChunkGenerator implements \Countable
 {
-    protected $chunkSize = 100;
-    protected $max = 0;
-    protected $findChunk;
-    protected $onBeforeChunk;
-    protected $onAfterChunk;
-
-    public static function builder() : ChunkGenerator
-    {
-        return new class() extends ChunkGenerator {
-            public function __construct()
-            {
-                parent::__construct(0, function () {});
-            }
-
-            public function setChunkSize(int $chunkSize) : self
-            {
-                $this->chunkSize = $chunkSize;
-
-                return $this;
-            }
-
-            public function setMax(int $max) : self
-            {
-                $this->max = $max;
-
-                return $this;
-            }
-
-            public function setFindChunk(callable $findChunk) : self
-            {
-                $this->findChunk = $findChunk;
-
-                return $this;
-            }
-
-            public function onBeforeChunk(callable $onBeforeChunk) : self
-            {
-                $this->onBeforeChunk = $onBeforeChunk;
-
-                return $this;
-            }
-
-            public function onAfterChunk(callable $onAfterChunk) : self
-            {
-                $this->onAfterChunk = $onAfterChunk;
-
-                return $this;
-            }
-
-            public function build() : ChunkGenerator
-            {
-                return new ChunkGenerator($this->max, $this->findChunk, $this->onBeforeChunk, $this->onAfterChunk, $this->chunkSize);
-            }
-        };
-    }
+    private $chunkSize = 100;
+    private $max = 0;
+    private $findChunk;
+    private $onBeforeChunk;
+    private $onAfterChunk;
 
     public function __construct(
         int $max,
         callable $findChunk,
         ?callable $onBeforeChunk = null,
         ?callable $onAfterChunk = null,
-        ?int $chunkSize = 100
+        int $chunkSize = 100
     ) {
         $this->max = $max;
         $this->findChunk = $findChunk;

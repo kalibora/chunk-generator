@@ -13,7 +13,7 @@ composer require kalibora/chunk-generator
 ### For doctrine
 
 ```php
-use Kalibora\ChunkGenerator\ChunkGenerator;
+use Kalibora\ChunkGenerator\ChunkGeneratorBuilder;
 
 $fooRepository = $manager->getRepository(Foo::class);
 $maxId = (int) $fooRepository->createQueryBuilder('f')
@@ -22,7 +22,7 @@ $maxId = (int) $fooRepository->createQueryBuilder('f')
     ->getSingleScalarResult()
 ;
 
-$gen = ChunkGenerator::builder()
+$gen = (ChunkGeneratorBuilder())
     ->setChunkSize(200)
     ->setMax($maxId)
     ->setFindChunk(function ($start, $end) use ($fooRepository) {
