@@ -37,18 +37,23 @@ class ChunkGeneratorBuilder
         $idFields = $meta->getIdentifierFieldNames();
         $idField = array_shift($idFields);
 
-        $maxId = (int) $qb
+        $qbMax = clone $qb;
+        $maxId = (int) $qbMax
             ->select("MAX({$alias}.{$idField})")
             ->getQuery()
             ->getSingleScalarResult()
         ;
 
+        $qbChunk = clone $qb;
+        $qbChunk
+            ->andWhere("{$alias}.{$idField} BETWEEN :start AND :end")
+            ->orderBy("{$alias}.{$idField}", 'ASC')
+        ;
+
         return (new self())
             ->setMax($maxId)
-            ->setFindChunk(function ($start, $end, $cnt) use ($qb, $alias, $idField) {
-                return $qb
-                    ->andWhere("{$alias}.{$idField} BETWEEN :start AND :end")
-                    ->orderBy("{$alias}.{$idField}", 'ASC')
+            ->setFindChunk(function ($start, $end, $cnt) use ($qbChunk) {
+                return $qbChunk
                     ->setParameter('start', $start)
                     ->setParameter('end', $end)
                     ->getQuery()
