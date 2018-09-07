@@ -2,6 +2,8 @@
 
 namespace Kalibora\ChunkGenerator;
 
+use Doctrine\ORM\QueryBuilder;
+
 class ChunkGeneratorBuilder
 {
     private $chunkSize = 100;
@@ -9,6 +11,8 @@ class ChunkGeneratorBuilder
     private $findChunk;
     private $onBeforeChunk;
     private $onAfterChunk;
+    private $onBeforeDatum;
+    private $onAfterDatum;
 
     public static function fromArray(array $array) : self
     {
@@ -18,6 +22,44 @@ class ChunkGeneratorBuilder
                 $len = $end - $start + 1;
 
                 return array_slice($array, $start - 1, (int) $len);
+            })
+        ;
+    }
+
+    public static function fromDoctrineQueryBuilder(QueryBuilder $qb) : self
+    {
+        $manager = $qb->getEntityManager();
+        $entities = $qb->getRootEntities();
+        $aliases = $qb->getRootAliases();
+        $entity = $entities[0];
+        $alias = $aliases[0];
+        $meta = $manager->getClassMetadata($entity);
+        $idFields = $meta->getIdentifierFieldNames();
+        $idField = array_shift($idFields);
+
+        $maxId = (int) $qb
+            ->select("MAX({$alias}.{$idField})")
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+
+        return (new self())
+            ->setMax($maxId)
+            ->setFindChunk(function ($start, $end, $cnt) use ($qb, $alias, $idField) {
+                return $qb
+                    ->andWhere("{$alias}.{$idField} BETWEEN :start AND :end")
+                    ->orderBy("{$alias}.{$idField}", 'ASC')
+                    ->setParameter('start', $start)
+                    ->setParameter('end', $end)
+                    ->getQuery()
+                    ->iterate()
+                ;
+            })
+            ->onBeforeDatum(function ($datum) {
+                return current($datum);
+            })
+            ->onAfterChunk(function () use ($manager) {
+                $manager->clear();
             })
         ;
     }
@@ -61,14 +103,30 @@ class ChunkGeneratorBuilder
         return $this;
     }
 
+    public function onBeforeDatum(callable $onBeforeDatum) : self
+    {
+        $this->onBeforeDatum = $onBeforeDatum;
+
+        return $this;
+    }
+
+    public function onAfterDatum(callable $onAfterDatum) : self
+    {
+        $this->onAfterDatum = $onAfterDatum;
+
+        return $this;
+    }
+
     public function build() : ChunkGenerator
     {
         return new ChunkGenerator(
+            $this->chunkSize,
             $this->max,
             $this->findChunk,
             $this->onBeforeChunk,
             $this->onAfterChunk,
-            $this->chunkSize
+            $this->onBeforeDatum,
+            $this->onAfterDatum
         );
     }
 }

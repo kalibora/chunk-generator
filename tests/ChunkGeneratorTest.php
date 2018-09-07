@@ -22,6 +22,20 @@ class ChunkGeneratorTest extends TestCase
             ->onAfterChunk(function () use (&$data) {
                 $data[] = 'A';
             })
+            ->onBeforeDatum(function ($datum) {
+                if ($datum === 5) {
+                    return 'five';
+                }
+
+                return $datum;
+            })
+            ->onAfterDatum(function ($datum) {
+                if ($datum === 6) {
+                    return 'nothing changes';
+                }
+
+                return $datum;
+            })
             ->build()
         ;
 
@@ -32,7 +46,7 @@ class ChunkGeneratorTest extends TestCase
         }
 
         $this->assertEquals(
-            'B 1 2 A B 3 4 A B 5 6 A B 7 8 A B 9 10 A',
+            'B 1 2 A B 3 4 A B five 6 A B 7 8 A B 9 10 A',
             implode(' ', $data)
         );
     }
@@ -63,5 +77,10 @@ class ChunkGeneratorTest extends TestCase
             'B 1 2 A B 3 4 A B 5 6 A B 7 8 A B 9 10 A',
             implode(' ', $data)
         );
+    }
+
+    public function testFromDoctrineQueryBuilder()
+    {
+        $this->markTestSkipped('TODO: implement test');
     }
 }

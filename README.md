@@ -16,32 +16,11 @@ composer require kalibora/chunk-generator
 use Kalibora\ChunkGenerator\ChunkGeneratorBuilder;
 
 $fooRepository = $manager->getRepository(Foo::class);
-$maxId = (int) $fooRepository->createQueryBuilder('f')
-    ->select('MAX(f.id)')
-    ->getQuery()
-    ->getSingleScalarResult()
-;
+$qb = $fooRepository->createQueryBuilder('f');
 
-$gen = (ChunkGeneratorBuilder())
-    ->setChunkSize(200)
-    ->setMax($maxId)
-    ->setFindChunk(function ($start, $end) use ($fooRepository) {
-        return $fooRepository->createQueryBuilder('f')
-            ->where('f.id BETWEEN :start AND :end')
-            ->orderBy('f.id', 'ASC')
-            ->setParameter('start', $start)
-            ->setParameter('end', $end)
-            ->getQuery()
-            ->iterate()
-        ;
-    })
-    ->onAfterChunk(function () use ($manager) {
-        $manager->clear()
-    })
-    ->build()
-;
+$gen = ChunkGeneratorBuilder::fromDoctrineQueryBuilder($qb)->build();
 
 foreach ($gen() as $row) {
-    $foo = $row[0];
+    echo $foo->getVar(), PHP_EOL;
 }
 ```
