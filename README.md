@@ -2,6 +2,12 @@
 
 Chunk generator (For keep memory usage low)
 
+## Installation
+
+```
+composer require kalibora/chunk-generator
+```
+
 ## Usage
 
 ### For doctrine
