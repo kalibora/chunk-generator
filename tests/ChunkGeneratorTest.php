@@ -25,6 +25,8 @@ class ChunkGeneratorTest extends TestCase
             ->build()
         ;
 
+        $this->assertCount(10, $gen);
+
         foreach ($gen() as $value) {
             $data[] = $value;
         }

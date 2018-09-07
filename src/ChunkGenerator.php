@@ -2,7 +2,7 @@
 
 namespace Kalibora\ChunkGenerator;
 
-class ChunkGenerator
+class ChunkGenerator implements \Countable
 {
     protected $chunkSize = 100;
     protected $max = 0;
@@ -113,5 +113,10 @@ class ChunkGenerator
                 call_user_func($this->onAfterChunk, $start, $end, $cnt);
             }
         }
+    }
+
+    public function count() : int
+    {
+        return $this->max;
     }
 }
