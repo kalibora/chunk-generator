@@ -1,7 +1,7 @@
 {
     "name": "kalibora/chunk-generator",
     "description": "Chunk generator (For keep memory usage low)",
-    "keywords": ["chunk", "generator", "memory"],
+    "keywords": ["chunk", "generator", "memory", "doctrine"],
     "license": "MIT",
     "authors": [
         {
