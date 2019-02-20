@@ -53,7 +53,7 @@ class ChunkGeneratorBuilder
         $isSpecifiedIds = false;
         $sortedIds = [];
         if (count($specifiedIds) > 0) {
-            $qb
+            $qbChunk
                 ->andWhere("{$alias}.{$idField} IN (:ids)")
                 ->setParameter('ids', $specifiedIds)
             ;
