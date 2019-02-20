@@ -26,7 +26,7 @@ class ChunkGeneratorBuilder
         ;
     }
 
-    public static function fromDoctrineQueryBuilder(QueryBuilder $qb) : self
+    public static function fromDoctrineQueryBuilder(QueryBuilder $qb, array $specifiedIds = []) : self
     {
         $manager = $qb->getEntityManager();
         $entities = $qb->getRootEntities();
@@ -50,9 +50,26 @@ class ChunkGeneratorBuilder
             ->orderBy("{$alias}.{$idField}", 'ASC')
         ;
 
+        $isSpecifiedIds = false;
+        $sortedIds = [];
+        if (count($specifiedIds) > 0) {
+            $qb
+                ->andWhere("{$alias}.{$idField} IN (:ids)")
+                ->setParameter('ids', $specifiedIds)
+            ;
+
+            $isSpecifiedIds = true;
+            $sortedIds = $specifiedIds;
+            sort($sortedIds, \SORT_NUMERIC);
+        }
+
         return (new self())
             ->setMax($maxId)
-            ->setFindChunk(function ($start, $end, $cnt) use ($qbChunk) {
+            ->setFindChunk(function ($start, $end, $cnt) use ($qbChunk, $isSpecifiedIds, &$sortedIds) {
+                if (! self::containsLeastOne($start, $end, $isSpecifiedIds, $sortedIds)) {
+                    return [];
+                }
+
                 return $qbChunk
                     ->setParameter('start', $start)
                     ->setParameter('end', $end)
@@ -133,5 +150,34 @@ class ChunkGeneratorBuilder
             $this->onBeforeDatum,
             $this->onAfterDatum
         );
+    }
+
+    private static function containsLeastOne(int $start, int $end, bool $isSpecifiedIds, array &$sortedIds) : bool
+    {
+        if (! $isSpecifiedIds) {
+            // unknown
+            return true;
+        }
+
+        $contains = false;
+        $nextRequiredIds = [];
+
+        foreach ($sortedIds as $id) {
+            if ($id < $start) {
+                continue;
+            }
+
+            if ($id <= $end) {
+                $contains = true;
+
+                continue;
+            }
+
+            $nextRequiredIds[] = $id;
+        }
+
+        $sortedIds = $nextRequiredIds;
+
+        return $contains;
     }
 }
