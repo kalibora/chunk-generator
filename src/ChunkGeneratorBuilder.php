@@ -26,7 +26,7 @@ class ChunkGeneratorBuilder
         ;
     }
 
-    public static function fromDoctrineQueryBuilder(QueryBuilder $qb, array $specifiedIds = []) : self
+    public static function fromDoctrineQueryBuilder(QueryBuilder $qb, array $specifiedIds = [], bool $fetchJoinCollection = false) : self
     {
         $manager = $qb->getEntityManager();
         $entities = $qb->getRootEntities();
@@ -65,19 +65,28 @@ class ChunkGeneratorBuilder
 
         return (new self())
             ->setMax($maxId)
-            ->setFindChunk(function ($start, $end, $cnt) use ($qbChunk, $isSpecifiedIds, &$sortedIds) {
+            ->setFindChunk(function ($start, $end, $cnt) use ($qbChunk, $isSpecifiedIds, &$sortedIds, $fetchJoinCollection) {
                 if (! self::containsLeastOne($start, $end, $isSpecifiedIds, $sortedIds)) {
                     return [];
                 }
 
-                return $qbChunk
+                $query = $qbChunk
                     ->setParameter('start', $start)
                     ->setParameter('end', $end)
                     ->getQuery()
-                    ->iterate()
                 ;
+
+                if ($fetchJoinCollection) {
+                    return $query->getResult();
+                }
+
+                return $query->iterate();
             })
-            ->onBeforeDatum(function ($datum) {
+            ->onBeforeDatum(function ($datum) use ($fetchJoinCollection) {
+                if ($fetchJoinCollection) {
+                    return $datum;
+                }
+
                 return current($datum);
             })
             ->onAfterChunk(function () use ($manager) {
