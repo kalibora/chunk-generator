@@ -2,6 +2,7 @@
 
 namespace Kalibora\ChunkGenerator;
 
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\QueryBuilder;
 
 class ChunkGeneratorBuilder
@@ -36,13 +37,9 @@ class ChunkGeneratorBuilder
         $meta = $manager->getClassMetadata($entity);
         $idFields = $meta->getIdentifierFieldNames();
         $idField = array_shift($idFields);
+        assert($idField !== null);
 
-        $qbMax = clone $qb;
-        $maxId = (int) $qbMax
-            ->select("MAX({$alias}.{$idField})")
-            ->getQuery()
-            ->getSingleScalarResult()
-        ;
+        $maxId = self::getMaxId($qb, $alias, $idField);
 
         $qbChunk = clone $qb;
         $qbChunk
@@ -188,5 +185,27 @@ class ChunkGeneratorBuilder
         $sortedIds = $nextRequiredIds;
 
         return $contains;
+    }
+
+    private static function getMaxId(QueryBuilder $qb, string $alias, string $idField) : int
+    {
+        $qbMax = clone $qb;
+
+        $qbMax->select("MAX({$alias}.{$idField})");
+
+        if ($qbMax->getDQLPart('groupBy')) {
+            $qbMax
+                ->orderBy("{$alias}.{$idField}", 'DESC')
+                ->setMaxResults(1)
+            ;
+        }
+
+        try {
+            $maxId = $qbMax->getQuery()->getSingleScalarResult();
+        } catch (NoResultException $e) {
+            $maxId = 0;
+        }
+
+        return (int) $maxId;
     }
 }
