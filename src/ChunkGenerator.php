@@ -56,7 +56,7 @@ class ChunkGenerator implements \Countable
             }
 
             if ($this->onBeforeChunk) {
-                call_user_func($this->onBeforeChunk, $start, $end, $cnt);
+                call_user_func($this->onBeforeChunk, $start, $end, $cnt, $chunk);
             }
 
             if ($chunkSize === null || $chunkSize > 0) {
@@ -74,7 +74,7 @@ class ChunkGenerator implements \Countable
             }
 
             if ($this->onAfterChunk) {
-                call_user_func($this->onAfterChunk, $start, $end, $cnt);
+                call_user_func($this->onAfterChunk, $start, $end, $cnt, $chunk);
             }
         }
     }
