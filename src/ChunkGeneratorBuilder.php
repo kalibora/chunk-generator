@@ -27,7 +27,7 @@ class ChunkGeneratorBuilder
         ;
     }
 
-    public static function fromDoctrineQueryBuilder(QueryBuilder $qb, array $specifiedIds = [], bool $fetchJoinCollection = false) : self
+    public static function fromDoctrineQueryBuilder(QueryBuilder $qb, array $specifiedIds = [], bool $fetchJoinCollection = false, bool $useBetween = true) : self
     {
         $manager = $qb->getEntityManager();
         $entities = $qb->getRootEntities();
@@ -39,13 +39,20 @@ class ChunkGeneratorBuilder
         $idField = array_shift($idFields);
         assert($idField !== null);
 
-        $maxId = self::getMaxId($qb, $alias, $idField);
+        if ($useBetween) {
+            $maxId = self::getMaxId($qb, $alias, $idField);
+        } else {
+            $maxId = self::getCountId($qb, $alias, $idField);
+        }
 
         $qbChunk = clone $qb;
-        $qbChunk
-            ->andWhere("{$alias}.{$idField} BETWEEN :start AND :end")
-            ->orderBy("{$alias}.{$idField}", 'ASC')
-        ;
+
+        if ($useBetween) {
+            $qbChunk
+                ->andWhere("{$alias}.{$idField} BETWEEN :start AND :end")
+                ->orderBy("{$alias}.{$idField}", 'ASC')
+            ;
+        }
 
         $isSpecifiedIds = false;
         $sortedIds = [];
@@ -62,16 +69,26 @@ class ChunkGeneratorBuilder
 
         return (new self())
             ->setMax($maxId)
-            ->setFindChunk(function ($start, $end, $cnt) use ($qbChunk, $isSpecifiedIds, &$sortedIds, $fetchJoinCollection) {
+            ->setFindChunk(function ($start, $end, $cnt) use ($qbChunk, $isSpecifiedIds, &$sortedIds, $fetchJoinCollection, $useBetween) {
                 if (! self::containsLeastOne($start, $end, $isSpecifiedIds, $sortedIds)) {
                     return [];
                 }
 
-                $query = $qbChunk
-                    ->setParameter('start', $start)
-                    ->setParameter('end', $end)
-                    ->getQuery()
-                ;
+                if ($useBetween) {
+                    $query = $qbChunk
+                        ->setParameter('start', $start)
+                        ->setParameter('end', $end)
+                        ->getQuery()
+                    ;
+                } else {
+                    $len = $end - $start + 1;
+
+                    $query = $qbChunk
+                        ->setMaxResults((int) $len)
+                        ->setFirstResult($start - 1)
+                        ->getQuery()
+                    ;
+                }
 
                 if ($fetchJoinCollection) {
                     return $query->getResult();
@@ -207,5 +224,20 @@ class ChunkGeneratorBuilder
         }
 
         return (int) $maxId;
+    }
+
+    private static function getCountId(QueryBuilder $qb, string $alias, string $idField) : int
+    {
+        $qbCount = clone $qb;
+
+        $qbCount->select("COUNT({$alias}.{$idField})");
+
+        try {
+            $count = $qbCount->getQuery()->getSingleScalarResult();
+        } catch (NoResultException $e) {
+            $count = 0;
+        }
+
+        return (int) $count;
     }
 }
