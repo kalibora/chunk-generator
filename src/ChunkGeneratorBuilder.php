@@ -49,17 +49,19 @@ class ChunkGeneratorBuilder
 
         if ($useBetween) {
             $qbChunk
-                ->andWhere("{$alias}.{$idField} BETWEEN :start AND :end")
+                ->andWhere("{$alias}.{$idField} BETWEEN :KaliboraChunkGeneratorStart AND :KaliboraChunkGeneratorEnd")
                 ->orderBy("{$alias}.{$idField}", 'ASC')
             ;
+        } else {
+            $qbChunk->addOrderBy("{$alias}.{$idField}", 'ASC');
         }
 
         $isSpecifiedIds = false;
         $sortedIds = [];
         if (count($specifiedIds) > 0) {
             $qbChunk
-                ->andWhere("{$alias}.{$idField} IN (:ids)")
-                ->setParameter('ids', $specifiedIds)
+                ->andWhere("{$alias}.{$idField} IN (:KaliboraChunkGeneratorIds)")
+                ->setParameter('KaliboraChunkGeneratorIds', $specifiedIds)
             ;
 
             $isSpecifiedIds = true;
@@ -76,8 +78,8 @@ class ChunkGeneratorBuilder
 
                 if ($useBetween) {
                     $query = $qbChunk
-                        ->setParameter('start', $start)
-                        ->setParameter('end', $end)
+                        ->setParameter('KaliboraChunkGeneratorStart', $start)
+                        ->setParameter('KaliboraChunkGeneratorEnd', $end)
                         ->getQuery()
                     ;
                 } else {
