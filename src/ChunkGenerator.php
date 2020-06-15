@@ -4,18 +4,32 @@ namespace Kalibora\ChunkGenerator;
 
 class ChunkGenerator implements \Countable
 {
+    /** @var int */
     private $chunkSize = 100;
+    /** @var int */
     private $max = 0;
+    /** @var callable(int,int,int):iterable<mixed>|null */
     private $findChunk;
+    /** @var callable(int,int,int,iterable<mixed>):void|null */
     private $onBeforeChunk;
+    /** @var callable(int,int,int,iterable<mixed>):void|null */
     private $onAfterChunk;
+    /** @var callable(mixed):mixed|null */
     private $onBeforeDatum;
+    /** @var callable(mixed):mixed|null */
     private $onAfterDatum;
 
+    /**
+     * @param callable(int,int,int):iterable<mixed>|null      $findChunk
+     * @param callable(int,int,int,iterable<mixed>):void|null $onBeforeChunk
+     * @param callable(int,int,int,iterable<mixed>):void|null $onAfterChunk
+     * @param callable(mixed):mixed|null                      $onBeforeDatum
+     * @param callable(mixed):mixed|null                      $onAfterDatum
+     */
     public function __construct(
         int $chunkSize,
         int $max,
-        callable $findChunk,
+        ?callable $findChunk,
         ?callable $onBeforeChunk = null,
         ?callable $onAfterChunk = null,
         ?callable $onBeforeDatum = null,
@@ -30,6 +44,9 @@ class ChunkGenerator implements \Countable
         $this->onAfterDatum = $onAfterDatum;
     }
 
+    /**
+     * @return \Generator<mixed>
+     */
     public function __invoke() : \Generator
     {
         $cnt = 0;

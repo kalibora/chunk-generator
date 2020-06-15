@@ -33,6 +33,9 @@
         ],
         "cs": [
             "php-cs-fixer fix -v --dry-run --diff"
+        ],
+        "cs-fix": [
+            "./vendor/bin/php-cs-fixer fix -v"
         ]
     },
     "require": {
@@ -41,7 +44,7 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^7.2",
-        "phpstan/phpstan": "^0.10.1",
+        "phpstan/phpstan": "^0.12.29",
         "friendsofphp/php-cs-fixer": "^2.12"
     }
 }
