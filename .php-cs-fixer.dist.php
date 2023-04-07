@@ -10,6 +10,7 @@ $finder = (new Finder())
 return (new Config())
     ->setRules([
         '@Symfony' => true,
+        'phpdoc_to_comment' => false,
         'concat_space' => false,
         'phpdoc_summary' => false,
         'yoda_style' => false,

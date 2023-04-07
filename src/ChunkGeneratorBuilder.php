@@ -150,7 +150,7 @@ class ChunkGeneratorBuilder
 
                 if ($fetchJoinCollection) {
                     $result = $query->getResult();
-                    /* @var iterable<mixed> $result */
+                    /** @var iterable<mixed> $result */
 
                     return $result;
                 }
@@ -163,7 +163,7 @@ class ChunkGeneratorBuilder
                     return $datum;
                 }
 
-                /* @var array<mixed>|object $datum */
+                /** @var array<mixed>|object $datum */
                 return current($datum);
             })
             ->onAfterChunk(function (int $start, int $end, int $cnt, iterable $chunk) use ($manager) : void {
@@ -298,7 +298,7 @@ class ChunkGeneratorBuilder
 
         try {
             $maxId = $qbMax->getQuery()->getSingleScalarResult();
-            /* @var scalar $maxId */
+            /** @var scalar $maxId */
         } catch (NoResultException $e) {
             $maxId = 0;
         }
@@ -314,7 +314,7 @@ class ChunkGeneratorBuilder
 
         try {
             $count = $qbCount->getQuery()->getSingleScalarResult();
-            /* @var scalar $count */
+            /** @var scalar $count */
         } catch (NoResultException $e) {
             $count = 0;
         }
