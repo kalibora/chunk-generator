@@ -4,10 +4,8 @@ name: "Build"
 
 on:
   pull_request:
-  workflow_dispatch:
   push:
-    branches:
-      - "master"
+  workflow_dispatch:
 
 jobs:
   coding-standards:
