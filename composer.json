@@ -43,7 +43,7 @@
         "doctrine/orm": "^2.6"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.2",
+        "phpunit/phpunit": "^9.5",
         "phpstan/phpstan": "^0.12.29",
         "friendsofphp/php-cs-fixer": "^2.12"
     }
