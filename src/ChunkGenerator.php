@@ -77,6 +77,7 @@ class ChunkGenerator implements \Countable
             }
 
             if ($chunkSize === null || $chunkSize > 0) {
+                assert(is_iterable($chunk));
                 foreach ($chunk as $datum) {
                     if ($this->onBeforeDatum) {
                         $datum = call_user_func($this->onBeforeDatum, $datum);

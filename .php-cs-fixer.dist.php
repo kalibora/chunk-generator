@@ -1,11 +1,13 @@
 <?php
 
-$finder = \PhpCsFixer\Finder::create()
-    ->exclude('vendor')
-    ->in(__DIR__)
-;
+use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
 
-return \PhpCsFixer\Config::create()
+$finder = (new Finder())
+    ->exclude('vendor')
+    ->in(__DIR__);
+
+return (new Config())
     ->setRules([
         '@Symfony' => true,
         'concat_space' => false,
@@ -16,5 +18,4 @@ return \PhpCsFixer\Config::create()
         'increment_style' => ['style' => 'post'],
     ])
     ->setFinder($finder)
-    ->setUsingCache(false)
-;
+    ->setUsingCache(false);
