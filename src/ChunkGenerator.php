@@ -2,7 +2,10 @@
 
 namespace Kalibora\ChunkGenerator;
 
-class ChunkGenerator implements \Countable
+use Countable;
+use Generator;
+
+class ChunkGenerator implements Countable
 {
     /** @var int */
     private $chunkSize = 100;
@@ -45,9 +48,9 @@ class ChunkGenerator implements \Countable
     }
 
     /**
-     * @return \Generator<mixed>
+     * @return Generator<mixed>
      */
-    public function __invoke() : \Generator
+    public function __invoke() : Generator
     {
         $cnt = 0;
 
@@ -66,7 +69,7 @@ class ChunkGenerator implements \Countable
                 $chunk = [];
             }
 
-            if (is_array($chunk) || $chunk instanceof \Countable) {
+            if (is_array($chunk) || $chunk instanceof Countable) {
                 $chunkSize = count($chunk);
             } else {
                 $chunkSize = null;
