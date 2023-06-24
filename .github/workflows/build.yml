@@ -3,8 +3,10 @@
 name: "Build"
 
 on:
-  pull_request:
   push:
+    branches:
+      - master
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -92,4 +94,4 @@ jobs:
         run: "composer update --no-interaction --no-progress"
 
       - name: "PHPStan"
-        run: "./vendor/bin/phpstan analyse"
+        run: "composer analyse"
