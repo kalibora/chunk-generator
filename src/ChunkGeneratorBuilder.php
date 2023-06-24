@@ -149,16 +149,21 @@ class ChunkGeneratorBuilder
                 }
 
                 if ($fetchJoinCollection) {
-                    return $query->getResult();
+                    $result = $query->getResult();
+                    /** @var iterable<mixed> $result */
+
+                    return $result;
                 }
 
                 return $query->iterate();
             })
+            /* @var array|object $datum */
             ->onBeforeDatum(function ($datum) use ($fetchJoinCollection) {
                 if ($fetchJoinCollection) {
                     return $datum;
                 }
 
+                /** @var array<mixed>|object $datum */
                 return current($datum);
             })
             ->onAfterChunk(function (int $start, int $end, int $cnt, iterable $chunk) use ($manager) : void {
@@ -293,6 +298,7 @@ class ChunkGeneratorBuilder
 
         try {
             $maxId = $qbMax->getQuery()->getSingleScalarResult();
+            /** @var scalar $maxId */
         } catch (NoResultException $e) {
             $maxId = 0;
         }
@@ -308,6 +314,7 @@ class ChunkGeneratorBuilder
 
         try {
             $count = $qbCount->getQuery()->getSingleScalarResult();
+            /** @var scalar $count */
         } catch (NoResultException $e) {
             $count = 0;
         }
