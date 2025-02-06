@@ -36,7 +36,7 @@ class ChunkGenerator implements Countable
         ?callable $onBeforeChunk = null,
         ?callable $onAfterChunk = null,
         ?callable $onBeforeDatum = null,
-        ?callable $onAfterDatum = null
+        ?callable $onAfterDatum = null,
     ) {
         $this->chunkSize = $chunkSize;
         $this->max = $max;

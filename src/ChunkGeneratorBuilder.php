@@ -22,6 +22,8 @@ class ChunkGeneratorBuilder
     /** @var callable(mixed):mixed|null */
     private $onAfterDatum;
 
+    private static ?QueryOptimizer $queryOptimizer;
+
     /**
      * @param array<mixed> $array
      */
@@ -83,7 +85,7 @@ class ChunkGeneratorBuilder
         QueryBuilder $qb,
         array $specifiedIds = [],
         bool $fetchJoinCollection = false,
-        bool $useBetween = true
+        bool $useBetween = true,
     ) : self {
         $manager = $qb->getEntityManager();
         $entities = $qb->getRootEntities();
@@ -285,7 +287,7 @@ class ChunkGeneratorBuilder
 
     private static function getMaxId(QueryBuilder $qb, string $alias, string $idField) : int
     {
-        $qbMax = clone $qb;
+        $qbMax = self::getQueryOptimizer()->optimizeForMax($qb);
 
         $qbMax->select("MAX({$alias}.{$idField})");
 
@@ -308,7 +310,7 @@ class ChunkGeneratorBuilder
 
     private static function getCountId(QueryBuilder $qb, string $alias, string $idField) : int
     {
-        $qbCount = clone $qb;
+        $qbCount = self::getQueryOptimizer()->optimizeForMax($qb);
 
         $qbCount->select("COUNT({$alias}.{$idField})");
 
@@ -320,5 +322,14 @@ class ChunkGeneratorBuilder
         }
 
         return (int) $count;
+    }
+
+    private static function getQueryOptimizer() : QueryOptimizer
+    {
+        if (self::$queryOptimizer === null) {
+            self::$queryOptimizer = new QueryOptimizer();
+        }
+
+        return self::$queryOptimizer;
     }
 }
