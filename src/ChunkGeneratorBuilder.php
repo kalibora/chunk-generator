@@ -157,16 +157,11 @@ class ChunkGeneratorBuilder
                     return $result;
                 }
 
-                return $query->iterate();
+                return $query->toIterable();
             })
-            /* @var array|object $datum */
-            ->onBeforeDatum(function ($datum) use ($fetchJoinCollection) {
-                if ($fetchJoinCollection) {
-                    return $datum;
-                }
-
-                /** @var array<mixed>|object $datum */
-                return current($datum);
+            /* @var object $datum */
+            ->onBeforeDatum(function ($datum) {
+                return $datum;
             })
             ->onAfterChunk(function (int $start, int $end, int $cnt, iterable $chunk) use ($manager) : void {
                 $manager->clear();
