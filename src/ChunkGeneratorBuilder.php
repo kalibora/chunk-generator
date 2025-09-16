@@ -22,7 +22,7 @@ class ChunkGeneratorBuilder
     /** @var callable(mixed):mixed|null */
     private $onAfterDatum;
 
-    private static ?QueryOptimizer $queryOptimizer;
+    private static ?QueryOptimizer $queryOptimizer = null;
 
     /**
      * @param array<mixed> $array
@@ -130,7 +130,7 @@ class ChunkGeneratorBuilder
         $this
             ->setMax($maxId)
             ->setFindChunk(function (int $start, int $end, int $cnt) use ($qbChunk, $isSpecifiedIds, &$sortedIds, $fetchJoinCollection, $useBetween) : iterable {
-                if (! self::containsLeastOne($start, $end, $isSpecifiedIds, $sortedIds)) {
+                if (! self::containsLeastOne($start, $end, $isSpecifiedIds, $useBetween, $sortedIds)) {
                     return [];
                 }
 
@@ -251,10 +251,15 @@ class ChunkGeneratorBuilder
     /**
      * @param array<mixed> $sortedIds
      */
-    private static function containsLeastOne(int $start, int $end, bool $isSpecifiedIds, array &$sortedIds) : bool
+    private static function containsLeastOne(int $start, int $end, bool $isSpecifiedIds, bool $useBetween, array &$sortedIds) : bool
     {
         if (! $isSpecifiedIds) {
             // unknown
+            return true;
+        }
+
+        if (! $useBetween) {
+            // May always contain the specified ids
             return true;
         }
 
